@@ -9,4 +9,6 @@ dependencies:
   - gdal=3.0.*
   - numpy=1.17.*
   - click
+  - shapely
+  - requests
 
