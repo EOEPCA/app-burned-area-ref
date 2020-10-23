@@ -84,6 +84,10 @@ def main(ndvi_threshold, ndwi_threshold, pre_event, post_event):
     s2_item_pre = S2_stac_item(pre_event['value'])
     s2_item_post = S2_stac_item(post_event['value'])
     
+    s2_items = dict()
+    s2_items['pre-event'] = S2_stac_item(pre_event['value'])
+    s2_items['post-event'] = S2_stac_item(post_event['value'])
+    
     dates = []
     bboxes = []
     
@@ -182,11 +186,11 @@ def main(ndvi_threshold, ndwi_threshold, pre_event, post_event):
     
     
     logging.info('Write output product')
-
-    output_name = 'S2_BURNED_AREA_{}.tif'.format('_'.join([d.strftime("%Y%m%d") for d in dates])) 
-
-    write_tif(burned, output_name, width, height, input_geotransform, input_georef)
     
+    output_name = 'S2_BURNED_AREA_{}'.format('_'.join([d.strftime("%Y%m%d") for d in dates])) 
+
+    write_tif(burned, '{}.tif'.format(output_name), width, height, input_geotransform, input_georef)
+
     logging.info('Output catalog')
 
     catalog = Catalog(id='catalog', description='Results')
@@ -199,57 +203,39 @@ def main(ndvi_threshold, ndwi_threshold, pre_event, post_event):
     result_titles[output_name] = {'title': 'Burned area analysis from Sentinel-2',
                                   'media_type': MediaType.COG}
 
-    
-    temporal_extent = TemporalExtent(intervals=[list(dict.fromkeys(dates))])
 
-
-                
-                
-                
-    spatial_extent = SpatialExtent(bboxes=bboxes)
-
-    
-    collection_extent = Extent(spatial=spatial_extent, 
-                                            temporal=temporal_extent)
-
-    collection = Collection(id='s2_burned_area', 
-                            title='Sentinel-2 burned area', 
-                            description='Sentinel-2 burned area using NDVI and NDWI', 
-                            extent=collection_extent)
 
     items = []
 
     for key, value in result_titles.items():
 
         result_item = Item(id=key,
-                           geometry=s2_item_pre.item.geometry,
-                           bbox=bboxes[0],
-                           datetime=dates[1],
+                           geometry=s2_items['pre-event'].item.geometry,
+                           bbox=s2_items['pre-event'].item.bbox,
+                           datetime=s2_items['pre-event'].item.datetime,
                            properties={})
 
         result_item.add_asset(key='data',
-                              asset=Asset(href='./{}'.format(key), 
+                              asset=Asset(href='./{}.tif'.format(key), 
                               media_type=value['media_type'], 
                               title=value['title']))
 
         items.append(result_item)
 
-    collection.add_items(items)
+    #collection.add_items(items)
 
-    catalog.add_child(collection)
+    catalog.add_items(items)
 
     catalog.describe()
 
-    catalog.normalize_and_save(root_href='stac-results',
+    catalog.normalize_and_save(root_href='./',
                                catalog_type=CatalogType.SELF_CONTAINED)
-    
 
     
-    shutil.move(output_name, 
-                os.path.join('stac-results',
-                             collection.id,
-                             output_name))
-    
+    shutil.move('{}.tif'.format(output_name), 
+            os.path.join('./',
+                         output_name,
+                         '{}.tif'.format(output_name)))
     
 if __name__ == '__main__':
     entry()
