@@ -2,7 +2,7 @@ $graph:
 - baseCommand: burned-area-ref
   hints:
     DockerRequirement:
-      dockerPull: eoepca/burned-area-ref:0.1
+      dockerPull: eoepca/burned-area-ref:0.2
   class: CommandLineTool
   id: clt
   inputs:
