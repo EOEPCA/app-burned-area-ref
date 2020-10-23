@@ -41,7 +41,7 @@ $graph:
   stdout: std.out
 - class: Workflow
   doc: Sentinel-2 burned area with NDVI/NDWI threshold
-  id: burned-area
+  id: burned-area-ref
   inputs:
     pre_event:
       doc: Sentinel-2 Level-2A pre-event acquisition
