@@ -35,6 +35,37 @@ Options:
 (env_burned_area)
 ```
 
+### Run the application 
+
+Create a YAML parameter file named `burned-area-ref.yml` with:
+
+```yaml
+pre_event: https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_36RTT_20191205_0_L2A
+post_event: https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_36RTT_20191215_0_L2A
+ndvi_threshold: '0.19'
+ndwi_threshold: '0.18'
+```
+
+Use `cwltool` to run the application:
+
+```bash
+cwltool --no-container burned-area-ref.cwl#burned-area-ref burned-area-ref.yml
+```
+
+### Build the Docker image locally and run the application
+
+```bash
+docker build -t burned-area-ref:0.2 .
+```
+
+Edit the CWL file to update the docker pull requirement value to `burned-area-ref:0.2`
+
+Use `cwltool` to run the application:
+
+```bash
+cwltool burned-area-ref.cwl#burned-area-ref burned-area-ref.yml
+```
+
 ### Deployment as a processing service
 
 Use the payload below to deploy the Application Package with a POST on the /processes endpoint:
